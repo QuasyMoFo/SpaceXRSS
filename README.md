@@ -17,7 +17,7 @@ When opening the Telemetry kOS Terminal, you'll see the T- countdown, fuel on bo
 During the countdown procedure, you'll see things being printed onto the console such as: "Fuel Load Start".
 After reading through this site [here](https://spaceflight101.com/falcon-9-countdown-timeline/), I've listed all of the events on the T-Clock, and all the way from L-8:30:00 (If you choose to set the countdown this far back that is).
 
-__**Listed Features__** as of 28/04/2021 (Version 0.1.0)
+__**Listed Features**__ as of 28/04/2021 (Version 0.1.0)
 * Countdown Sequence with all sequences (No Data past L-8:30:00)
 * Vehicle tests prior to T-0
 * Max Q Throttling
