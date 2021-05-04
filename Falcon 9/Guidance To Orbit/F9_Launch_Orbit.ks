@@ -1,5 +1,5 @@
 // Falcon 9 - Launch To Orbit Script
-// Codebase v0.2.0
+// Codebase v0.2.3
 // Licensed under GNU General Public License 3.0
 
 GLOBAL INIT IS LEXICON(
@@ -9,7 +9,7 @@ GLOBAL INIT IS LEXICON(
     
     "Apogee", 250000, // Apoapsis
     "Perigee", 250000, // Periapsis
-    "Inclination", 28.6, // 39a = 28 to 62 degrees ~ 40 = 28 to 93
+    "Inclination", 28.6, // 39a = 28-62 ~ 40 = 28-93
     "LAN", false, // leave as false for untimed launch
 
     "AFTS", "SAFED", // [SAFED] [AUTO]
@@ -120,7 +120,7 @@ function p3_S1_S2_Separation {
 }
 
 function p4_S2_Guidance {
-    until ship:apoapsis >= Apogee and ship:periapsis >= Perigee - 2500 {
+    until ship:apoapsis >= Apogee and ship:periapsis >= Perigee - 30000 {
         if ship:velocity:surface:mag < 4000 {
             local pitch_Modifier is (-7.25 * ln(eta:apoapsis) + 30.6).
 
@@ -171,9 +171,20 @@ function p4_S2_Guidance {
         f9_Steering(az_Steer, pitch_Steer, roll).
         f9_Throttle(min(max(0.1, (Apogee - ship:apoapsis) / (Apogee - body:atm:height)) + max(0, ((60 - eta:apoapsis) * 0.075)), 1)).
 
+        if ship:periapsis >= Perigee - 180000 {
+            break.
+        }
+
         wait 0.
     }
 
+    lock steering to prograde.
+    f9_Throttle(0.1).
+
+    until ship:apoapsis >= Apogee {
+        wait 0.
+    }
+    
     f9_Throttle(0).
     wait 3.
 }
