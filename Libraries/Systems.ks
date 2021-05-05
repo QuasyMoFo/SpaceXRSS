@@ -1,5 +1,5 @@
 // Falcon 9 - Systems Script
-// Codebase v0.2.0
+// Codebase v0.2.4
 // Licensed under GNU General Public License 3.0
 
 function f9_Steering {
@@ -35,23 +35,6 @@ function formatted_Time {
     return time_Unit_Formatted.
 }
 
-function vehicle_Telemetry {
-    when TELEMETRY_SYSTEM = true then {
-        clearscreen.
-
-        print "FALCON 9 TELEMETRY COMPUTER" at (2, 1).
-        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~" at (2, 2).
-        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~" at (2, 12).
-
-        print "TIME: " + time_Of_Day() at (2, 3).
-        print "M.E.T: " + formatted_Time(missionTime) at (2, 4).
-        print "Runmode: " + runmode_Checker() at (2, 5).
-        print "Throt: " + round(throttle, 3) at (2, 6).
-        
-        preserve.
-    }
-}
-
 function time_Of_Day {
     return time:clock.
 }
@@ -61,30 +44,6 @@ function launch_Status {
         return "HOLDING".
     } else {
         return "GO".
-    }
-}
-
-function runmode_Checker {
-    copyPath("0:/Falcon 9/Guidance To Orbit/Phase_1_Guidance.ks", "").
-    copyPath("0:/Falcon 9/Guidance To Orbit/Phase_2_Guidance.ks", "").
-    copyPath("0:/Falcon 9/Guidance To Orbit/Phase_3.ks", "").
-
-    if runmode = 0 {
-        return "Launch Sequence Complete!".
-    } else if runmode = 1 {
-        return "Liftoff".
-    } else if runmode = 2 {
-        return "Gravity Turn".
-    } else if runmode = 3 {
-        return "MECO".
-    } else if runmode = 4 {
-        return "Stage 2 Guidance".
-    } else if runmode = 5 {
-        return "Stage 2 Guidance, sect 2".
-    } else if runmode = 6 {
-        return "Precise Guidance for orbit".
-    } else if runmode = 7 {
-        return "Coast Phase & Orbit Burn".
     }
 }
 
@@ -198,7 +157,7 @@ function data_Output {
         print "____________________________________________" at (2, 3).
 
         print "Time: " + time:clock at (2, 5).
-        print "M.E.T: " + missionTime at (2, 6).
+        print "M.E.T: " + formatted_Time(missionTime) at (2, 6).
         print "Connection: " + homeConnection:isconnected at (2, 7).
         print "REAL___________________TARGET_______________" at (2, 9).
 
@@ -208,6 +167,13 @@ function data_Output {
         print "Target: " + Perigee at (26, 12).
         print "Inclination: " + round(ship:orbit:Inclination, 2) at (2, 13).
         print "Target: " + Inclination at (26, 13).
+        print "LAN: " + round(orbit:longitudeofascendingnode, 2) at (2, 14).
+        print "Target: " + LAN at (26, 14).
+        print "____________________________________________" at (2, 15).
+        
+        print "VSpeed: " + round(ship:verticalspeed, 3) at (2, 17). 
+        print "ASpeed: " + round(ship:airspeed, 3) at (2, 18).
+        print "Srf Mag: " + round(ship:velocity:surface:mag, 3) at (2, 19). 
 
         // Miscs
         print "|" at (24, 10).
