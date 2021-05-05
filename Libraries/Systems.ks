@@ -190,5 +190,32 @@ function launch_Count {
 }
 
 function data_Output {
+    set telem to true.
+    when telem then {
+        clearscreen.
+        print "- SpaceX Telemetry -" at (2, 1).
+        print "- " + ship:name + " -" at (2, 2).
+        print "____________________________________________" at (2, 3).
 
+        print "Time: " + time:clock at (2, 5).
+        print "M.E.T: " + missionTime at (2, 6).
+        print "Connection: " + homeConnection:isconnected at (2, 7).
+        print "REAL___________________TARGET_______________" at (2, 9).
+
+        print "Apogee: " + round(ship:apoapsis / 1000, 2) at (2, 11).
+        print "Target: " + Apogee at (26, 11).
+        print "Perigee: " + round(ship:periapsis / 1000, 2) at (2, 12).  
+        print "Target: " + Perigee at (26, 12).
+        print "Inclination: " + round(ship:orbit:Inclination, 2) at (2, 13).
+        print "Target: " + Inclination at (26, 13).
+
+        // Miscs
+        print "|" at (24, 10).
+        print "|" at (24, 11).
+        print "|" at (24, 12).
+        print "|" at (24, 13).
+        print "|" at (24, 14).
+
+        preserve.
+    }   
 }
