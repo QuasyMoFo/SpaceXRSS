@@ -7,13 +7,13 @@ GLOBAL INIT IS LEXICON(
     "Launch Vehicle", "Falcon 9 B5", // [Falcon 9 B5] [Falcon Heavy]
     "Config", "Payload", // [Payload] [Dragon]
     
-    "Apogee", 250000, // Apoapsis
-    "Perigee", 250000, // Periapsis
-    "Inclination", 28.6, // 39a = 28-62 ~ 40 = 28-93
+    "Apogee", 450000, // Apoapsis
+    "Perigee", 450000, // Periapsis
+    "Inclination", 92, // 39a = 28-62 ~ 40 = 28-93
     "LAN", false, // leave as false for untimed launch
 
     "AFTS", "SAFED", // [SAFED] [AUTO]
-    "Recovery", "RTLS", // [RTLS] [ASDS]
+    "Recovery", "ASDS", // [RTLS] [ASDS] [NONE]
 
     "Countdown Time", 10, // Time in seconds for countdown
     "Countdown NET", true, // Leave as true for telemetry
@@ -45,6 +45,7 @@ function f9_Init {
     
     
     set config:ipu to INIT["CPU IPU"].
+    set steeringManager:maxstoppingtime to 1.
     set steeringManager:rollts to 5.
     set steeringManager:pitchts to 5.
     set steeringManager:yawts to 5.
@@ -59,10 +60,8 @@ function f9_Init {
 
     if recovery_Mode = "ASDS" {
         global meco_Propellant is 22500.
-        global asc_Val is 130.
     } else if recovery_Mode = "RTLS" {
         global meco_Propellant is 30000.
-        global asc_Val is 150. 
     } else if recovery_Mode = "NONE" {
         global meco_Propellant is 100.
     }
@@ -117,17 +116,20 @@ function p3_S1_S2_Separation {
 
     wait 3.
     f9_Throttle(1).
+    set roll to 0.
 }
 
 function p4_S2_Guidance {
+    set steeringManager:maxstoppingtime to 0.25.
+
     until ship:apoapsis >= Apogee and ship:periapsis >= Perigee - 30000 {
         if ship:velocity:surface:mag < 4000 {
-            local pitch_Modifier is (-7.25 * ln(eta:apoapsis) + 30.6).
+            local pitch_Modifier is (-6.75 * ln(eta:apoapsis) + 30.6).
 
             set pitch_Steer to ((90 - 1.4 * sqrt(ship:velocity:surface:mag - 49)) + pitch_Modifier).
         } else if ship:velocity:surface:mag < 5600 {
             if eta:apoapsis > eta:periapsis {
-                local pitch_Modifier is (-6.05 * ln(eta:apoapsis) + 60).
+                local pitch_Modifier is (-8.05 * ln(eta:apoapsis) + 60).
 
                 set pitch_Steer to pitch_Modifier.
             } else {
@@ -152,11 +154,11 @@ function p4_S2_Guidance {
         } else if ship:velocity:surface:mag < 7700 {
             if eta:apoapsis > eta:periapsis {
                 local eta_Neg is ((2 * eta:periapsis) - eta:apoapsis).
-                local pitch_Modifier is (0.004 * (eta_Neg) ^ 2 - 0.453 * (eta_Neg)).
+                local pitch_Modifier is (0.006 * (eta_Neg) ^ 2 - 0.453 * (eta_Neg)).
 
                 set pitch_Steer to pitch_Modifier.
             } else {
-                local pitch_Modifier is (0.004 * (eta:apoapsis) ^ 2 - 0.453 * (eta:apoapsis)).
+                local pitch_Modifier is (0.006 * (eta:apoapsis) ^ 2 - 0.453 * (eta:apoapsis)).
 
                 set pitch_Steer to pitch_Modifier.
             }
@@ -169,24 +171,24 @@ function p4_S2_Guidance {
 
         local az_Steer is round(LAZcalc(az_Calc), 2).
         f9_Steering(az_Steer, pitch_Steer, roll).
-        f9_Throttle(min(max(0.1, (Apogee - ship:apoapsis) / (Apogee - body:atm:height)) + max(0, ((60 - eta:apoapsis) * 0.075)), 1)).
-
-        if ship:periapsis >= Perigee - 180000 {
+        f9_Throttle(1).
+        if ship:periapsis >= Perigee - 250000 {
             break.
-        }
+        }   
 
         wait 0.
     }
 
+    rcs on.
     lock steering to prograde.
-    f9_Throttle(0.1).
+    f9_Throttle(min(max(0.1, (Apogee - ship:apoapsis) / (Apogee - body:atm:height)) + max(0, ((60 - eta:apoapsis) * 0.075)), 1)).
 
-    until ship:apoapsis >= Apogee {
+    until ship:periapsis >= Perigee - 3000 or ship:apoapsis > Apogee {
         wait 0.
     }
     
     f9_Throttle(0).
-    wait 3.
+    wait 6.
 }
 
 // SEQUENCE -------------------------------------------------
